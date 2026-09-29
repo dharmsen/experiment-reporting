@@ -32,7 +32,7 @@
 
 **Interfaces:**
 - Consumes: nothing (first task).
-- Produces: `tests/fixtures/sweep.csv` — 3 variants × 5 seeds (method_b has only 4: seeds 1,2,4), wide format `run_id,variant,seed,accuracy,loss`. Used by Tasks 2–4 tests and Task 9 end-to-end. `assets/plotly.min.js` consumed by Task 7. `conftest.py` puts `scripts/` on `sys.path` so tests can `import analyze`.
+- Produces: `tests/fixtures/sweep.csv` — 3 variants (5/5/3 seeds; method_b has only 3 runs: seeds 1,2,4 — missing seeds 3 and 5), wide format `run_id,variant,seed,accuracy,loss`. Used by Tasks 2–4 tests and Task 9 end-to-end. `assets/plotly.min.js` consumed by Task 7. `conftest.py` puts `scripts/` on `sys.path` so tests can `import analyze`.
 
 - [ ] **Step 1: Initialize git and directory structure**
 
@@ -48,6 +48,7 @@ mkdir -p scripts references templates assets tests/fixtures
 __pycache__/
 .pytest_cache/
 *.pyc
+.superpowers/
 ```
 
 - [ ] **Step 3: Create `conftest.py`** (repo root — makes `scripts/` importable in tests)
@@ -315,10 +316,12 @@ def test_describe_baseline_accuracy():
     assert 0.698 <= lo and hi <= 0.712
 
 
-def test_describe_iqm_even_n():
+def test_describe_small_n_and_even_iqm():
     d = analyze.describe(_accuracy("method_b"), resamples=1000, seed=3407)
-    assert d["n"] == 4
-    assert d["iqm"] == pytest.approx(0.72)  # (0.718 + 0.722) / 2
+    assert d["n"] == 3
+    assert d["iqm"] is None  # trim_mean needs n >= 4
+    even = analyze.describe([0.715, 0.718, 0.722, 0.725], resamples=100, seed=3407)
+    assert even["iqm"] == pytest.approx(0.72)  # (0.718 + 0.722) / 2
 
 
 def test_describe_deterministic():
@@ -393,7 +396,7 @@ Co-Authored-By: Claude Code <noreply@anthropic.com>"
 **Interfaces:**
 - Consumes: `load_input`, `describe` from Tasks 2–3.
 - Produces: `compare(runs, variant, baseline, metric, paired_mode="auto") -> dict` (the comparison object of spec §8: `variant, baseline, metric, delta, delta_rel, test, p, cohens_d, flags, n_variant, n_baseline`); `holm_adjust(pvals) -> list[float]`; `build_output(paths, baseline, metrics, paired_mode, resamples, seed, use_holm) -> dict` (full spec §8 schema); `main(argv)`. Exit code 0; JSON to stdout or `--out`.
-- Hand-verified expectations: method_a vs baseline accuracy — paired (5 shared seeds), mean diff = 0.031, paired sd ≈ 0.0035355, t ≈ 19.604, p < 1e-4, Cohen's d ≈ 8.768. method_b vs baseline — 3 shared seeds ≥ 3 → paired on matched pairs (n=3), mean diff ≈ 0.0146667, p ≈ 0.106 (NOT significant), flag `low-power`.
+- Hand-verified expectations: method_a vs baseline accuracy — paired (5 shared seeds), mean diff = 0.031, paired sd ≈ 0.0035355, t ≈ 19.604, p < 1e-4, Cohen's d ≈ 8.768. method_b vs baseline — 3 shared seeds ≥ 3 → paired on matched pairs (n=3): mean diff of matched pairs ≈ 0.0146667 while `delta` over all runs = 0.0133333 (baseline keeps its 5 runs), t ≈ 2.816, df=2, p ≈ 0.107 (NOT significant), flag `low-power`.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -425,10 +428,10 @@ def test_compare_method_a_significant():
 
 def test_compare_method_b_low_power_not_significant():
     c = analyze.compare(_runs(), "method_b", "baseline", "accuracy")
-    assert c["n_variant"] == 4
+    assert c["n_variant"] == 3
     assert c["test"] == "paired t-test (seed-matched, n=3)"
-    assert c["p"] == pytest.approx(0.1065, abs=5e-3)
-    assert c["delta"] == pytest.approx(0.0146667, abs=1e-6)
+    assert c["p"] == pytest.approx(0.1072, abs=5e-3)
+    assert c["delta"] == pytest.approx(0.0133333, abs=1e-6)
     assert "low-power: n<5, interpret cautiously" in c["flags"]
 
 
@@ -443,8 +446,8 @@ def test_compare_no_inference_when_n_lt_3(tmp_path):
     p.write_text("run_id,variant,seed,accuracy\n1,v1,1,0.5\n2,v1,2,0.6\n"
                  "3,baseline,1,0.5\n4,baseline,2,0.6\n")
     c = analyze.compare(analyze.load_input(p), "v1", "baseline", "accuracy")
-    assert "no statistical inference possible (n<3)" not in c["flags"]  # n=2 pairs → paired needs ≥3
-    assert c["test"] == "Welch's t-test"
+    assert "no statistical inference possible (n<3)" in c["flags"]  # n=2 runs each
+    assert c["test"] == "Welch's t-test"  # only 2 shared seeds → no pairing
 
 
 def test_holm_adjust():
@@ -935,7 +938,7 @@ from pathlib import Path
 
 import render_html
 
-REPO = Path(__file__).parents[2]
+REPO = Path(__file__).parents[1]
 
 CHARTS = [{
     "div_id": "chart-1",
@@ -1228,7 +1231,7 @@ import json
 import re
 from pathlib import Path
 
-REPO = Path(__file__).parents[2]
+REPO = Path(__file__).parents[1]
 EXAMPLES = REPO / "examples"
 
 

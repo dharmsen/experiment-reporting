@@ -235,12 +235,12 @@ dataviz heuristics).
 
 ## 11. Validation
 
-Fixture: 3 variants × 5 seeds CSV (one metric with an obvious gap, one variant with a
-missing seed) → run the skill end-to-end → verify:
+Fixture: 3 variants (5/5/3 seeds — method_b missing seeds 3 and 5), one metric with an
+obvious gap → run the skill end-to-end → verify:
 1. `stats.json` numerically correct (hand-checked once: mean/std/CI/p-value sanity)
 2. `report.md` follows the canonical structure and passes the quality checklist
 3. `report.html` opens offline from `file://`, charts render, tiles show Δ and n
-4. Flags fire correctly (`n<5` on the 4-seed variant)
+4. Flags fire correctly (`n<5` on the 3-seed variant)
 5. Final validation follows the superpowers writing-skills process before the skill is
    considered done
 
