@@ -1230,9 +1230,11 @@ def test_stats_json_numerically_correct():
     assert acc["n"] == 5
     assert abs(acc["mean"] - 0.705) < 1e-12
     assert abs(acc["std"] - 0.0057009) < 1e-6
-    comp = {c["variant"]: c for c in stats["comparisons"]}["method_a"]
+    comp = next(c for c in stats["comparisons"]
+                if c["variant"] == "method_a" and c["metric"] == "accuracy")
     assert comp["delta"] > 0.03 and comp["p"] < 1e-4
-    comp_b = {c["variant"]: c for c in stats["comparisons"]}["method_b"]
+    comp_b = next(c for c in stats["comparisons"]
+                  if c["variant"] == "method_b" and c["metric"] == "accuracy")
     assert "low-power: n<5, interpret cautiously" in comp_b["flags"]
 
 
