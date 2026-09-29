@@ -94,3 +94,70 @@ def collapsify(body_html):
     if in_details:
         out.append("</details>")
     return "".join(out)
+
+
+COLLAPSIBLE_NOTE = "<!-- sections whose h2 name is in collapsify()'s set render collapsed -->"
+
+
+def build_page(content_html, tiles_html, charts, plotly_js, plotly_version):
+    import html as html_mod
+
+    charts_json = json.dumps([{"div_id": c["div_id"], "figure": c["figure"]}
+                              for c in (charts or [])])
+    charts_divs = "".join(f'<div id="{html_mod.escape(c["div_id"])}" class="chart"></div>'
+                          for c in (charts or []))
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Experiment report</title>
+<style>{PAGE_CSS}
+.chart {{ width: 100%; min-height: 22rem; margin: 1rem 0; }}
+</style>
+</head>
+<body>
+{content_html}
+{tiles_html}
+{charts_divs}
+<script>/* plotly.js {plotly_version} */
+{plotly_js}
+</script>
+<script>
+const REPORT_CHARTS = {charts_json};
+for (const c of REPORT_CHARTS) {{
+  Plotly.newPlot(c.div_id, c.figure.data, c.figure.layout || {{}}, {{responsive: true}});
+}}
+</script>
+</body>
+</html>
+"""
+
+
+def main(argv=None):
+    import argparse
+
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--content", required=True, help="drafted report markdown")
+    ap.add_argument("--stats", required=True, help="stats.json from analyze.py")
+    ap.add_argument("--charts", default=None, help="charts.json (plotly figure specs)")
+    ap.add_argument("--out", default=None, help="output .html path")
+    args = ap.parse_args(argv)
+
+    stats = json.loads(Path(args.stats).read_text())
+    charts = json.loads(Path(args.charts).read_text()) if args.charts else []
+    body = collapsify(render_markdown(Path(args.content).read_text()))
+    tiles = summary_tiles(stats)
+    repo = Path(__file__).resolve().parents[1]
+    plotly_js = (repo / "assets" / "plotly.min.js").read_text()
+    version = (repo / "assets" / "PLOTLY_VERSION").read_text().strip()
+    page = build_page(body, tiles, charts, plotly_js, version)
+
+    out = Path(args.out) if args.out else Path(args.content).with_suffix(".html")
+    out.write_text(page)
+    print(f"wrote {out} ({len(page) / 1e6:.1f} MB)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
