@@ -1,0 +1,14 @@
+run_id,variant,seed,accuracy,loss
+1,baseline,1,0.712,0.541
+2,baseline,2,0.698,0.562
+3,baseline,3,0.705,0.553
+4,baseline,4,0.701,0.558
+5,baseline,5,0.709,0.549
+6,method_a,1,0.741,0.492
+7,method_a,2,0.725,0.511
+8,method_a,3,0.738,0.499
+9,method_a,4,0.731,0.506
+10,method_a,5,0.745,0.495
+11,method_b,1,0.718,0.530
+12,method_b,2,0.722,0.527
+13,method_b,4,0.715,0.533
