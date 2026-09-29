@@ -20,7 +20,7 @@
 - Bootstrap default seed `3407`, default resamples `10000`, CI `95%` percentile method.
 - Flags: `n < 5` → `"low-power: n<5, interpret cautiously"`; `n < 3` → `"no statistical inference possible (n<3)"`.
 - IQM = `scipy.stats.trim_mean(values, 0.25)`; return `null` when `n < 4`.
-- Every git commit message ends with `Co-Authored-By: Claude Code <noreply@anthropic.com>`.
+- Commit messages carry NO co-author/attribution trailers of any kind (user request, 2026-09-29).
 - Scripts produce numbers/HTML only — never report prose. Prose is drafted by the agent following `references/writing-style.md`.
 
 ---
@@ -114,9 +114,7 @@ Expected: plotly.min.js is > 1,000,000 bytes; sweep.csv is 14 lines; sweep_long.
 
 ```bash
 git add .gitignore conftest.py tests/fixtures assets docs
-git commit -m "chore: scaffold experiment-reporting skill repo, fixtures, vendored plotly
-
-Co-Authored-By: Claude Code <noreply@anthropic.com>"
+git commit -m "chore: scaffold experiment-reporting skill repo, fixtures, vendored plotly"
 ```
 
 ---
@@ -267,9 +265,7 @@ Expected: 3 PASS.
 
 ```bash
 git add scripts/analyze.py tests/test_loading.py
-git commit -m "feat(analyze): load wide/long CSV and JSON run tables
-
-Co-Authored-By: Claude Code <noreply@anthropic.com>"
+git commit -m "feat(analyze): load wide/long CSV and JSON run tables"
 ```
 
 ---
@@ -380,9 +376,7 @@ Expected: 3 PASS.
 
 ```bash
 git add scripts/analyze.py tests/test_describe.py
-git commit -m "feat(analyze): descriptive stats with deterministic bootstrap CI
-
-Co-Authored-By: Claude Code <noreply@anthropic.com>"
+git commit -m "feat(analyze): descriptive stats with deterministic bootstrap CI"
 ```
 
 ---
@@ -659,9 +653,7 @@ Expected: JSON with `meta`, `variants` (3 variants), `comparisons` (2); method_b
 
 ```bash
 git add scripts/analyze.py tests/test_compare.py
-git commit -m "feat(analyze): comparisons, flags, Holm, CLI JSON output
-
-Co-Authored-By: Claude Code <noreply@anthropic.com>"
+git commit -m "feat(analyze): comparisons, flags, Holm, CLI JSON output"
 ```
 
 ---
@@ -732,9 +724,7 @@ Expected: reporting-standards.md contains ≥ 8 source URLs; template contains �
 
 ```bash
 git add references templates
-git commit -m "docs: reference standards, statistics recipes, writing style, report template
-
-Co-Authored-By: Claude Code <noreply@anthropic.com>"
+git commit -m "docs: reference standards, statistics recipes, writing style, report template"
 ```
 
 ---
@@ -910,9 +900,7 @@ Expected: 3 PASS.
 
 ```bash
 git add scripts/render_html.py tests/test_render_core.py
-git commit -m "feat(render): markdown body, summary tiles, collapsible appendix
-
-Co-Authored-By: Claude Code <noreply@anthropic.com>"
+git commit -m "feat(render): markdown body, summary tiles, collapsible appendix"
 ```
 
 ---
@@ -1083,9 +1071,7 @@ Expected: 4 PASS.
 
 ```bash
 git add scripts/render_html.py tests/test_render_offline.py
-git commit -m "feat(render): offline single-file HTML with inline plotly and charts
-
-Co-Authored-By: Claude Code <noreply@anthropic.com>"
+git commit -m "feat(render): offline single-file HTML with inline plotly and charts"
 ```
 
 ---
@@ -1184,9 +1170,7 @@ Expected: `OK`.
 
 ```bash
 git add SKILL.md
-git commit -m "feat: SKILL.md workflow, checklist, install symlink
-
-Co-Authored-By: Claude Code <noreply@anthropic.com>"
+git commit -m "feat: SKILL.md workflow, checklist, install symlink"
 ```
 
 ---
@@ -1281,9 +1265,7 @@ Expected: symlink resolves; every referenced file exists and is non-empty.
 
 ```bash
 git add examples tests/test_e2e.py
-git commit -m "test: end-to-end validation artifacts and e2e suite
-
-Co-Authored-By: Claude Code <noreply@anthropic.com>"
+git commit -m "test: end-to-end validation artifacts and e2e suite"
 ```
 
 ---
