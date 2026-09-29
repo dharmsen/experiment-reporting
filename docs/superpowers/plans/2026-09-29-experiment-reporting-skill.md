@@ -782,7 +782,8 @@ def test_collapsify_wraps_appendix_only():
     out = render_html.collapsify(body)
     assert out.count("<details") == 1
     assert "<summary>Appendix</summary>" in out
-    assert "<h2>3. Results</h2>" in out and "<details" not in out.split("<h2>3. Results</h2>")[1].split("<h2>Appendix</h2>")[0]
+    # no collapsible wrapper inside the Results section (between its heading and the details opener)
+    assert "<h2>3. Results</h2>" in out and "<details" not in out.split("<h2>3. Results</h2>")[1].split("<details")[0]
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
