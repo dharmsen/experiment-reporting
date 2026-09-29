@@ -1097,7 +1097,7 @@ Note for the executor: before writing SKILL.md, invoke the `superpowers:writing-
 ```markdown
 ---
 name: experiment-reporting
-description: Use when reporting results of experiments the agent ran or was given — benchmarks, ablations, hyperparameter sweeps, model or LLM evals — with results in context or in markdown/CSV/JSON files. Produces a rigorous lab-notebook report: clean markdown by default, self-contained interactive HTML on request.
+description: "Use when reporting results of experiments the agent ran or was given — benchmarks, ablations, hyperparameter sweeps, model or LLM evals — with results in context or in markdown/CSV/JSON files. Produces a rigorous lab-notebook report: clean markdown by default, self-contained interactive HTML on request."
 ---
 
 # Experiment Reporting
@@ -1129,7 +1129,8 @@ uncertainty and its baseline.
 4. **Verify** — Pass the quality checklist below before delivering. Fix and
    re-check; do not deliver a failing checklist.
 5. **Render** — Deliver the markdown file next to the results (default). HTML
-   when requested or when interaction genuinely helps:
+   when requested or when interaction genuinely helps (see
+   `references/html-report.md` for the contract the renderer enforces):
 
    ```bash
    uv run --with markdown,pygments scripts/render_html.py \
