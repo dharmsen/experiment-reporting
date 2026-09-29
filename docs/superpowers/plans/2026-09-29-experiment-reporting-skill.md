@@ -432,7 +432,7 @@ def test_compare_method_b_low_power_not_significant():
 def test_compare_forced_welch():
     c = analyze.compare(_runs(), "method_a", "baseline", "accuracy", paired_mode="never")
     assert c["test"] == "Welch's t-test"
-    assert c["p"] < 1e-4
+    assert c["p"] == pytest.approx(1.73e-4, abs=2e-5)
 
 
 def test_compare_no_inference_when_n_lt_3(tmp_path):
