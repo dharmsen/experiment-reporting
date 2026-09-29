@@ -959,7 +959,10 @@ def test_page_is_complete_html_with_charts():
 
 def test_page_fully_offline():
     page = _page()
-    ext = re.findall(r'(?:src|href)="(https?://[^"]+)"', page)
+    # strip script bodies: the inlined plotly.js contains URL *string literals*
+    # (map attribution, credit links) that are never fetched — only markup counts
+    markup = re.sub(r"<script\b.*?</script>", "", page, flags=re.S)
+    ext = re.findall(r'(?:src|href)="(https?://[^"]+)"', markup)
     assert ext == [], f"external references found: {ext}"
 
 
@@ -1244,9 +1247,10 @@ def test_report_md_structure_and_checklist():
 
 def test_html_offline_and_complete():
     page = (EXAMPLES / "sweep-report.html").read_text()
+    markup = re.sub(r"<script\b.*?</script>", "", page, flags=re.S)
     assert page.startswith("<!DOCTYPE html>")
     assert "Plotly.newPlot" in page
-    assert not re.findall(r'(?:src|href)="(https?://[^"]+)"', page)
+    assert not re.findall(r'(?:src|href)="(https?://[^"]+)"', markup)
     assert len(page) > 1_000_000
 ```
 
