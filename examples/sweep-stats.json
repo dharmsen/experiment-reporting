@@ -1,0 +1,202 @@
+{
+  "meta": {
+    "inputs": [
+      "tests/fixtures/sweep.csv"
+    ],
+    "baseline": "baseline",
+    "bootstrap": {
+      "resamples": 10000,
+      "seed": 3407
+    },
+    "holm": false,
+    "generated": "2026-09-29T14:53:11+00:00"
+  },
+  "variants": {
+    "baseline": {
+      "accuracy": {
+        "n": 5,
+        "values": [
+          0.712,
+          0.698,
+          0.705,
+          0.701,
+          0.709
+        ],
+        "mean": 0.705,
+        "median": 0.705,
+        "min": 0.698,
+        "max": 0.712,
+        "ci95": [
+          0.7006,
+          0.7093999999999999
+        ],
+        "std": 0.005700877125495695,
+        "sem": 0.0025495097567963944,
+        "iqm": 0.705
+      },
+      "loss": {
+        "n": 5,
+        "values": [
+          0.541,
+          0.562,
+          0.553,
+          0.558,
+          0.549
+        ],
+        "mean": 0.5526000000000001,
+        "median": 0.553,
+        "min": 0.541,
+        "max": 0.562,
+        "ci95": [
+          0.546,
+          0.5586
+        ],
+        "std": 0.008142481194328921,
+        "sem": 0.003641428291206628,
+        "iqm": 0.5533333333333333
+      }
+    },
+    "method_a": {
+      "accuracy": {
+        "n": 5,
+        "values": [
+          0.741,
+          0.725,
+          0.738,
+          0.731,
+          0.745
+        ],
+        "mean": 0.736,
+        "median": 0.738,
+        "min": 0.725,
+        "max": 0.745,
+        "ci95": [
+          0.73,
+          0.7420000000000001
+        ],
+        "std": 0.008000000000000007,
+        "sem": 0.0035777087639996667,
+        "iqm": 0.7366666666666667
+      },
+      "loss": {
+        "n": 5,
+        "values": [
+          0.492,
+          0.511,
+          0.499,
+          0.506,
+          0.495
+        ],
+        "mean": 0.5006,
+        "median": 0.499,
+        "min": 0.492,
+        "max": 0.511,
+        "ci95": [
+          0.49460000000000004,
+          0.5066
+        ],
+        "std": 0.00782943165242536,
+        "sem": 0.003501428280002322,
+        "iqm": 0.5
+      }
+    },
+    "method_b": {
+      "accuracy": {
+        "n": 3,
+        "values": [
+          0.718,
+          0.722,
+          0.715
+        ],
+        "mean": 0.7183333333333333,
+        "median": 0.718,
+        "min": 0.715,
+        "max": 0.722,
+        "ci95": [
+          0.715,
+          0.722
+        ],
+        "std": 0.0035118845842842497,
+        "sem": 0.002027587510099409,
+        "iqm": null
+      },
+      "loss": {
+        "n": 3,
+        "values": [
+          0.53,
+          0.527,
+          0.533
+        ],
+        "mean": 0.5299999999999999,
+        "median": 0.53,
+        "min": 0.527,
+        "max": 0.533,
+        "ci95": [
+          0.527,
+          0.533
+        ],
+        "std": 0.0030000000000000027,
+        "sem": 0.001732050807568879,
+        "iqm": null
+      }
+    }
+  },
+  "comparisons": [
+    {
+      "variant": "method_a",
+      "baseline": "baseline",
+      "metric": "accuracy",
+      "delta": 0.031000000000000028,
+      "delta_rel": 0.0439716312056738,
+      "test": "paired t-test (seed-matched, n=5)",
+      "p": 3.991074229376781e-05,
+      "cohens_d": 8.76812408671319,
+      "flags": [],
+      "n_variant": 5,
+      "n_baseline": 5
+    },
+    {
+      "variant": "method_a",
+      "baseline": "baseline",
+      "metric": "loss",
+      "delta": -0.052000000000000046,
+      "delta_rel": -0.09410061527325378,
+      "test": "paired t-test (seed-matched, n=5)",
+      "p": 6.632233955387455e-07,
+      "cohens_d": -24.513035081133644,
+      "flags": [],
+      "n_variant": 5,
+      "n_baseline": 5
+    },
+    {
+      "variant": "method_b",
+      "baseline": "baseline",
+      "metric": "accuracy",
+      "delta": 0.013333333333333308,
+      "delta_rel": 0.018912529550827388,
+      "test": "paired t-test (seed-matched, n=3)",
+      "p": 0.10631108992737373,
+      "cohens_d": 1.6262867961000602,
+      "flags": [
+        "low-power: n<5, interpret cautiously"
+      ],
+      "n_variant": 3,
+      "n_baseline": 5
+    },
+    {
+      "variant": "method_b",
+      "baseline": "baseline",
+      "metric": "loss",
+      "delta": -0.022600000000000176,
+      "delta_rel": -0.040897575099529807,
+      "test": "paired t-test (seed-matched, n=3)",
+      "p": 0.07667539434163667,
+      "cohens_d": -1.963154485813125,
+      "flags": [
+        "low-power: n<5, interpret cautiously"
+      ],
+      "n_variant": 3,
+      "n_baseline": 5
+    }
+  ]
+}

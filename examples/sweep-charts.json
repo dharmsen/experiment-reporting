@@ -1,0 +1,124 @@
+[
+  {
+    "div_id": "chart-1",
+    "figure": {
+      "data": [
+        {
+          "type": "bar",
+          "x": [
+            "baseline (n=5)",
+            "method_a (n=5)",
+            "method_b (n=3)"
+          ],
+          "y": [
+            0.705,
+            0.736,
+            0.7183333333333333
+          ],
+          "name": "Mean accuracy",
+          "marker": {
+            "color": "#2563eb"
+          },
+          "width": 0.45,
+          "error_y": {
+            "type": "data",
+            "asymmetric": true,
+            "array": [
+              0.0043999999999999595,
+              0.006000000000000116,
+              0.003666666666666707
+            ],
+            "arrayminus": [
+              0.0043999999999999595,
+              0.006000000000000005,
+              0.0033333333333332993
+            ],
+            "color": "#5f6672",
+            "thickness": 1,
+            "width": 4
+          },
+          "hovertemplate": "%{x}<br>mean %{y:.4f}<br>95% CI [%{customdata[0]:.4f}, %{customdata[1]:.4f}]<extra></extra>",
+          "customdata": [
+            [
+              0.7006,
+              0.7093999999999999
+            ],
+            [
+              0.73,
+              0.7420000000000001
+            ],
+            [
+              0.715,
+              0.722
+            ]
+          ]
+        }
+      ],
+      "layout": {
+        "title": {
+          "text": "Mean accuracy by variant<br><sup>error bars: 95% bootstrap CI over runs/seeds</sup>",
+          "font": {
+            "size": 15,
+            "color": "#1a1a1a"
+          },
+          "x": 0.01,
+          "xanchor": "left"
+        },
+        "showlegend": false,
+        "font": {
+          "family": "system-ui, -apple-system, \"Segoe UI\", sans-serif",
+          "size": 13,
+          "color": "#5f6672"
+        },
+        "plot_bgcolor": "rgba(0,0,0,0)",
+        "paper_bgcolor": "rgba(0,0,0,0)",
+        "xaxis": {
+          "title": {
+            "text": "Variant",
+            "font": {
+              "color": "#1a1a1a"
+            }
+          },
+          "color": "#5f6672",
+          "showgrid": false,
+          "linecolor": "#e4e7eb",
+          "tickfont": {
+            "color": "#5f6672"
+          }
+        },
+        "yaxis": {
+          "title": {
+            "text": "Accuracy",
+            "font": {
+              "color": "#1a1a1a"
+            }
+          },
+          "range": [
+            0,
+            0.8
+          ],
+          "tickvals": [
+            0,
+            0.2,
+            0.4,
+            0.6,
+            0.8
+          ],
+          "tickformat": ".1f",
+          "gridcolor": "#e4e7eb",
+          "gridwidth": 1,
+          "zerolinecolor": "#e4e7eb",
+          "color": "#5f6672",
+          "tickfont": {
+            "color": "#5f6672"
+          }
+        },
+        "hoverlabel": {
+          "font": {
+            "color": "#1a1a1a"
+          }
+        }
+      }
+    }
+  }
+]
