@@ -8,6 +8,7 @@ Usage:
 """
 import csv
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -52,12 +53,14 @@ def load_long_csv(path):
                 "seed": _to_float(row.get("seed")),
                 "metrics": {},
             })
-            run["metrics"][row["metric"]] = _to_float(row["value"])
+            fv = _to_float(row["value"])
+            if fv is not None:  # unparseable cells are dropped, as in the wide loader
+                run["metrics"][row["metric"]] = fv
     return list(runs.values())
 
 
 def load_json(path):
-    data = json.loads(Path(path).read_text())
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
     runs = []
     for obj in data:
         metrics = {k: float(v) for k, v in obj.items()
@@ -165,16 +168,25 @@ def compare(runs, variant, baseline, metric, paired_mode="auto"):
         test = f"paired t-test (seed-matched, n={len(a)})"
     else:
         res = sps.ttest_ind(v_vals, b_vals, equal_var=False)
-        sv, sb = np.var(v_vals, ddof=1), np.var(b_vals, ddof=1)
         nv, nb = len(v_vals), len(b_vals)
-        pooled = np.sqrt(((nv - 1) * sv + (nb - 1) * sb) / (nv + nb - 2))
-        cohens_d = float(delta / pooled) if pooled > 0 else None
+        if nv > 1 and nb > 1:  # ddof=1 variances are undefined for n=1 sides
+            sv, sb = np.var(v_vals, ddof=1), np.var(b_vals, ddof=1)
+            pooled = np.sqrt(((nv - 1) * sv + (nb - 1) * sb) / (nv + nb - 2))
+            cohens_d = float(delta / pooled) if pooled > 0 else None
+        else:
+            cohens_d = None
         test = "Welch's t-test"
+
+    p = float(res.pvalue)
+    if not math.isfinite(p):  # e.g. an n=1 side: no testable difference — no NaN in JSON
+        p = None
+        if cohens_d is not None and math.isnan(cohens_d):
+            cohens_d = None
 
     return {
         "variant": variant, "baseline": baseline, "metric": metric,
         "delta": delta, "delta_rel": delta_rel,
-        "test": test, "p": float(res.pvalue), "cohens_d": cohens_d,
+        "test": test, "p": p, "cohens_d": cohens_d,
         "flags": flags, "n_variant": len(v_vals), "n_baseline": len(b_vals),
     }
 
@@ -238,8 +250,9 @@ def build_output(paths, baseline, metrics=None, paired_mode="auto",
                     compare(runs, v, baseline, m, paired_mode=paired_mode))
 
     if use_holm and out["comparisons"]:
-        adjusted = holm_adjust([c["p"] for c in out["comparisons"]])
-        for c, p in zip(out["comparisons"], adjusted):
+        testable = [c for c in out["comparisons"] if c["p"] is not None]
+        adjusted = holm_adjust([c["p"] for c in testable])
+        for c, p in zip(testable, adjusted):
             c["p_holm"] = p
     return out
 
@@ -264,7 +277,7 @@ def main(argv=None):
                        seed=args.bootstrap_seed, use_holm=args.holm)
     text = json.dumps(out, indent=2)
     if args.out:
-        Path(args.out).write_text(text + "\n")
+        Path(args.out).write_text(text + "\n", encoding="utf-8")
     else:
         print(text)
     return 0

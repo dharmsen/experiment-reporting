@@ -40,3 +40,20 @@ def test_collapsify_wraps_appendix_only():
     assert "<summary>Appendix</summary>" in out
     # no collapsible wrapper inside the Results section (between its heading and the details opener)
     assert "<h2>3. Results</h2>" in out and "<details" not in out.split("<h2>3. Results</h2>")[1].split("<details")[0]
+
+
+def test_summary_tiles_escape_variant_and_flags():
+    tiles = render_html.summary_tiles({
+        "meta": {"baseline": "b"},
+        "variants": {},
+        "comparisons": [{
+            "variant": "acc<x", "baseline": "b", "metric": "accuracy",
+            "delta": 0.01, "delta_rel": None, "test": "Welch's t-test",
+            "p": None, "cohens_d": None,
+            "flags": ["no statistical inference possible (n<3)"],
+            "n_variant": 1, "n_baseline": 5,
+        }],
+    })
+    assert "acc&lt;x" in tiles       # variant name is html-escaped
+    assert "acc<x" not in tiles      # ...never raw
+    assert "n&lt;3" in tiles         # flag text is escaped too (analyze.py's literal strings contain <)

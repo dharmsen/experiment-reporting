@@ -47,6 +47,20 @@ def test_compare_no_inference_when_n_lt_3(tmp_path):
     assert c["test"] == "Welch's t-test"  # only 2 shared seeds → no pairing
 
 
+def test_compare_n1_side_emits_p_none_no_warning(tmp_path):
+    import json
+    import warnings
+
+    p = tmp_path / "n1.csv"
+    p.write_text("run_id,variant,seed,accuracy\n1,v1,1,0.5\n2,baseline,1,0.4\n")
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", RuntimeWarning)  # no ddof<=0 path may fire
+        c = analyze.compare(analyze.load_input(p), "v1", "baseline", "accuracy")
+    assert "no statistical inference possible (n<3)" in c["flags"]
+    assert c["p"] is None and c["cohens_d"] is None
+    json.dumps(c, allow_nan=False)  # strict JSON: no NaN smuggled in
+
+
 def test_holm_adjust():
     adj = analyze.holm_adjust([0.04, 0.01, 0.03])
     assert adj == pytest.approx([0.06, 0.03, 0.06])

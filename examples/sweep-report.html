@@ -33,6 +33,7 @@ pre { background: #f6f8fa; padding: .75rem; border-radius: 6px; overflow-x: auto
 </style>
 </head>
 <body>
+<div class='tiles'><div class='tile'><div class='k'>method_a · accuracy · n=5</div><div class='v'>0.736 <span class='k'>[0.730, 0.742]</span></div><div class='d up'>+0.031 / +4.4% vs baseline</div></div><div class='tile'><div class='k'>method_a · loss · n=5</div><div class='v'>0.501 <span class='k'>[0.495, 0.507]</span></div><div class='d down'>-0.052 / -9.4% vs baseline</div></div><div class='tile'><div class='k'>method_b · accuracy · n=3</div><div class='v'>0.718 <span class='k'>[0.715, 0.722]</span></div><div class='d up'>+0.013 / +1.9% vs baseline</div><div class='k'>low-power: n&lt;5, interpret cautiously</div></div><div class='tile'><div class='k'>method_b · loss · n=3</div><div class='v'>0.530 <span class='k'>[0.527, 0.533]</span></div><div class='d down'>-0.023 / -4.1% vs baseline</div><div class='k'>low-power: n&lt;5, interpret cautiously</div></div></div>
 <h1>Training-recipe sweep (baseline vs method_a vs method_b) — method_a ships; method_b unresolved</h1>
 <p><strong>TL;DR:</strong> method_a beats the baseline recipe by +3.1 pts mean accuracy (0.736 vs 0.705, n=5 per side; 95% bootstrap CIs [0.730, 0.742] vs [0.701, 0.709], no overlap; paired t-test, seed-matched, n=5: p=4.0e-5). It also lowers mean eval loss by 0.052 (p=6.6e-7). We are promoting method_a to the default recipe for the main sweep. method_b's +1.3 pts is not statistically significant (p=0.106) and its comparison carries the script flag <code>low-power: n&lt;5, interpret cautiously</code> (n=3 completed runs) — it suggests, but does not establish, an improvement.</p>
 <h2>1. Question &amp; hypothesis</h2>
@@ -73,7 +74,7 @@ pre { background: #f6f8fa; padding: .75rem; border-radius: 6px; overflow-x: auto
 <pre><code class="language-bash">uv run --with numpy,scipy scripts/analyze.py tests/fixtures/sweep.csv \
   --baseline baseline --out examples/sweep-stats.json
 </code></pre>
-<h2>3. Results</h2>
+<h2>3. Results</h2><div id="chart-1" class="chart"></div>
 <p>Measured values below come verbatim from <code>examples/sweep-stats.json</code>; every interval is a 95% percentile bootstrap CI over runs/seeds (10,000 resamples), which is the only variability these numbers capture — there is no data-split or cross-run protocol variance here.</p>
 <p>Mean accuracy by variant (higher is better):</p>
 <table>
@@ -94,7 +95,7 @@ pre { background: #f6f8fa; padding: .75rem; border-radius: 6px; overflow-x: auto
 <td>0.705</td>
 <td>[0.7006, 0.7094]</td>
 <td>0.705</td>
-<td>0.7050</td>
+<td>0.705</td>
 </tr>
 <tr>
 <td>method_a</td>
@@ -379,8 +380,7 @@ pre { background: #f6f8fa; padding: .75rem; border-radius: 6px; overflow-x: auto
 </table>
 <p><strong>Incomplete runs (2, with reasons):</strong> method_b seed 3 and method_b seed 5 crashed with NaN loss during training (epochs 31 and 44 respectively) and never reached evaluation, so they contribute no metric values. They are excluded from every aggregate above; that exclusion is why method_b has n=3 while the other variants have n=5. No run was dropped for underperforming.</p>
 <p><strong>Reproduce:</strong> the command in Section 2 regenerates <code>examples/sweep-stats.json</code> from the raw table; <code>scripts/render_html.py</code> rebuilds the HTML from this file, that stats file, and <code>examples/sweep-charts.json</code>.</p></details>
-<div class='tiles'><div class='tile'><div class='k'>method_a · accuracy · n=5</div><div class='v'>0.736 <span class='k'>[0.730, 0.742]</span></div><div class='d up'>+0.031 / +4.4% vs baseline</div></div><div class='tile'><div class='k'>method_a · loss · n=5</div><div class='v'>0.501 <span class='k'>[0.495, 0.507]</span></div><div class='d down'>-0.052 / -9.4% vs baseline</div></div><div class='tile'><div class='k'>method_b · accuracy · n=3</div><div class='v'>0.718 <span class='k'>[0.715, 0.722]</span></div><div class='d up'>+0.013 / +1.9% vs baseline</div><div class='k'>low-power: n<5, interpret cautiously</div></div><div class='tile'><div class='k'>method_b · loss · n=3</div><div class='v'>0.530 <span class='k'>[0.527, 0.533]</span></div><div class='d down'>-0.023 / -4.1% vs baseline</div><div class='k'>low-power: n<5, interpret cautiously</div></div></div>
-<div id="chart-1" class="chart"></div>
+
 <script>/* plotly.js 3.0.1 */
 /**
 * plotly.js v3.0.1

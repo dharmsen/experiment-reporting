@@ -37,7 +37,7 @@ Mean accuracy by variant (higher is better):
 
 | Variant | n | Mean accuracy | 95% CI (over runs) | Median | IQM |
 |---|---|---|---|---|---|
-| baseline | 5 | 0.705 | [0.7006, 0.7094] | 0.705 | 0.7050 |
+| baseline | 5 | 0.705 | [0.7006, 0.7094] | 0.705 | 0.705 |
 | method_a | 5 | 0.736 | [0.7300, 0.7420] | 0.738 | 0.7367 |
 | method_b | 3 | 0.7183 | [0.7150, 0.7220] | 0.718 | — (n<4, omitted) |
 

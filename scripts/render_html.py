@@ -5,6 +5,7 @@ Usage:
   uv run --with markdown,pygments scripts/render_html.py --content report.md \
       --stats stats.json [--charts charts.json] [--out report.html]
 """
+import html as html_mod
 import json
 import re
 import sys
@@ -47,6 +48,7 @@ def _fmt(x, digits=3):
 
 
 def summary_tiles(stats):
+    esc = html_mod.escape
     baseline = stats["meta"]["baseline"]
     tiles = []
     for c in stats.get("comparisons", []):
@@ -55,19 +57,20 @@ def summary_tiles(stats):
         mean_s = _fmt(mean)
         if ci:
             mean_s += f" <span class='k'>[{_fmt(ci[0])}, {_fmt(ci[1])}]</span>"
-        delta_s = f"{c['delta']:+.3f} / {c['delta_rel'] * 100:+.1f}% vs {c['baseline']}" \
-            if c.get("delta_rel") is not None else f"{c['delta']:+.3f} vs {c['baseline']}"
+        delta_s = f"{c['delta']:+.3f} / {c['delta_rel'] * 100:+.1f}% vs {esc(c['baseline'])}" \
+            if c.get("delta_rel") is not None else f"{c['delta']:+.3f} vs {esc(c['baseline'])}"
         cls = "up" if c.get("delta", 0) > 0 else "down"
-        flags = f"<div class='k'>{' · '.join(c['flags'])}</div>" if c.get("flags") else ""
+        flags = f"<div class='k'>{' · '.join(esc(f) for f in c['flags'])}</div>" \
+            if c.get("flags") else ""
         tiles.append(
-            f"<div class='tile'><div class='k'>{c['variant']} · {c['metric']} · "
+            f"<div class='tile'><div class='k'>{esc(c['variant'])} · {esc(c['metric'])} · "
             f"n={c['n_variant']}</div><div class='v'>{mean_s}</div>"
             f"<div class='d {cls}'>{delta_s}</div>{flags}</div>")
     if not tiles:
         for variant, metrics in stats.get("variants", {}).items():
             for metric, agg in metrics.items():
                 tiles.append(
-                    f"<div class='tile'><div class='k'>{variant} · {metric} · "
+                    f"<div class='tile'><div class='k'>{esc(variant)} · {esc(metric)} · "
                     f"n={agg['n']}</div><div class='v'>{_fmt(agg['mean'])}</div></div>")
     return f"<div class='tiles'>{''.join(tiles)}</div>"
 
@@ -99,13 +102,44 @@ def collapsify(body_html):
 COLLAPSIBLE_NOTE = "<!-- sections whose h2 name is in collapsify()'s set render collapsed -->"
 
 
-def build_page(content_html, tiles_html, charts, plotly_js, plotly_version):
-    import html as html_mod
+def _chart_div(chart):
+    return f'<div id="{html_mod.escape(chart["div_id"])}" class="chart"></div>'
 
+
+def splice_section_charts(content_html, charts):
+    """Splice section-matching chart divs in immediately after their section's h2.
+
+    A chart entry carrying a "section" key whose value equals an h2 heading's
+    text (tag-stripped, whitespace-stripped — same normalization collapsify
+    uses) is placed at the top of that section. Returns (content_html,
+    leftover_charts): entries without a "section" key, or whose section matches
+    no h2, are left over for the page tail.
+    """
+    charts = list(charts or [])
+    parts = re.split(r"(<h2>.*?</h2>)", content_html)
+    out = []
+    for part in parts:
+        out.append(part)
+        m = re.match(r"<h2>(.*?)</h2>$", part)
+        if not m:
+            continue
+        name = re.sub(r"<[^>]+>", "", m.group(1)).strip()
+        unmatched = []
+        for c in charts:
+            if c.get("section") is not None and str(c["section"]).strip() == name:
+                out.append(_chart_div(c))
+            else:
+                unmatched.append(c)
+        charts = unmatched
+    return "".join(out), charts
+
+
+def build_page(content_html, tiles_html, charts, plotly_js, plotly_version):
+    charts = list(charts or [])
+    content_html, leftover = splice_section_charts(content_html, charts)
     charts_json = json.dumps([{"div_id": c["div_id"], "figure": c["figure"]}
-                              for c in (charts or [])])
-    charts_divs = "".join(f'<div id="{html_mod.escape(c["div_id"])}" class="chart"></div>'
-                          for c in (charts or []))
+                              for c in charts])
+    charts_divs = "".join(_chart_div(c) for c in leftover)
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -117,8 +151,8 @@ def build_page(content_html, tiles_html, charts, plotly_js, plotly_version):
 </style>
 </head>
 <body>
-{content_html}
 {tiles_html}
+{content_html}
 {charts_divs}
 <script>/* plotly.js {plotly_version} */
 {plotly_js}
@@ -144,17 +178,17 @@ def main(argv=None):
     ap.add_argument("--out", default=None, help="output .html path")
     args = ap.parse_args(argv)
 
-    stats = json.loads(Path(args.stats).read_text())
-    charts = json.loads(Path(args.charts).read_text()) if args.charts else []
-    body = collapsify(render_markdown(Path(args.content).read_text()))
+    stats = json.loads(Path(args.stats).read_text(encoding="utf-8"))
+    charts = json.loads(Path(args.charts).read_text(encoding="utf-8")) if args.charts else []
+    body = collapsify(render_markdown(Path(args.content).read_text(encoding="utf-8")))
     tiles = summary_tiles(stats)
     repo = Path(__file__).resolve().parents[1]
-    plotly_js = (repo / "assets" / "plotly.min.js").read_text()
-    version = (repo / "assets" / "PLOTLY_VERSION").read_text().strip()
+    plotly_js = (repo / "assets" / "plotly.min.js").read_text(encoding="utf-8")
+    version = (repo / "assets" / "PLOTLY_VERSION").read_text(encoding="utf-8").strip()
     page = build_page(body, tiles, charts, plotly_js, version)
 
     out = Path(args.out) if args.out else Path(args.content).with_suffix(".html")
-    out.write_text(page)
+    out.write_text(page, encoding="utf-8")
     print(f"wrote {out} ({len(page) / 1e6:.1f} MB)")
     return 0
 

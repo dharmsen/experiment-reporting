@@ -9,6 +9,7 @@ REPO = Path(__file__).parents[1]
 
 CHARTS = [{
     "div_id": "chart-1",
+    "section": "Appendix",
     "figure": {"data": [{"type": "bar", "x": ["a", "b"], "y": [1, 2]}],
                "layout": {"title": "demo"}},
 }]
@@ -31,8 +32,18 @@ def test_page_is_complete_html_with_charts():
     assert "<html" in page and "</html>" in page
     assert 'id="chart-1"' in page
     assert "Plotly.newPlot" in page
-    assert json.dumps(CHARTS[0]["figure"])[:60] in page.replace('\\"', '"') or \
-           '"data"' in page  # figure JSON embedded
+    assert json.dumps(CHARTS[0]["figure"])[:60] in page.replace('\\"', '"')  # figure JSON embedded
+
+
+def test_chart_spliced_into_named_section():
+    page = _page()
+    markup = re.sub(r"<script\b.*?</script>", "", page, flags=re.S)
+    m = re.search(r"<h2>Appendix</h2>", markup)
+    assert m, "Appendix heading missing"
+    idx = markup.find('id="chart-1"')
+    assert m.end() < idx < markup.find("</body>")  # inside the section, in the content region
+    # spliced immediately after the section's h2 (top of section), not appended at the tail
+    assert markup[m.end():].startswith('<div id="chart-1" class="chart"></div>')
 
 
 def test_page_fully_offline():

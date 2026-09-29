@@ -49,6 +49,8 @@ Per variant × metric the script emits: `n`, `values` (per-run), `mean`, `std`, 
   n ≥ 3; test name in output: `paired t-test (seed-matched, n={k})`. Otherwise Welch's
   t-test (`ttest_ind`, `equal_var=False`); test name: `Welch's t-test`.
   `--paired never` forces Welch's even when seeds align.
+- `delta` is the difference of full group means; `test`/`cohens_d` use the seed-matched
+  shared pairs — with unbalanced seeds these can differ (as with method_b).
 - Effect size: Cohen's d — paired form (mean of per-seed differences ÷ std of differences,
   ddof=1) for the paired test; pooled-SD form otherwise. Emitted as `cohens_d`; null when
   the denominator is 0. Report it with every comparison (Appelbaum et al., JARS-Quant).
